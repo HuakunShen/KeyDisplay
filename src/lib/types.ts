@@ -40,8 +40,8 @@ export const themes = ThemeUnion.options.map((option) => option.value);
 export const SettingSchema = z
 	.object({
 		duration: z.number(),
-		mode: ModeEnum,
-		theme: ThemeUnion
+		theme: ThemeUnion,
+		zoom: z.number()
 	})
-	.default({ duration: 1500, mode: ModeEnum.Enum.timeout, theme: 'dark' });
+	.default({ duration: 1500, theme: 'dark', zoom: 1 });
 export type Setting = z.infer<typeof SettingSchema>;

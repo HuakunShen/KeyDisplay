@@ -2,14 +2,18 @@
 	import { appWindow } from '@tauri-apps/api/window';
 	import { onDestroy, onMount } from 'svelte';
 	import { emit, listen, type UnlistenFn } from '@tauri-apps/api/event';
+	import { setting } from '$lib/store';
 
 	let keys: string[] = [];
+	let displayElement: HTMLElement;
 
 	function keyTranslator(key: string) {
 		switch (key) {
 			case 'Escape':
 				return 'ESC';
 			case 'Enter':
+				return '↵';
+			case 'Return':
 				return '↵';
 			case 'Delete':
 				return 'DEL';
@@ -80,6 +84,15 @@
 		}
 	}
 
+	onMount(() => {
+		setting.subscribe((s) => {
+			console.log("setting update");
+			
+			// set data-theme attribute of html element to s.theme
+			document.documentElement.setAttribute('data-theme', s.theme);
+		});
+	});
+
 	let unlistenKeypress: UnlistenFn;
 
 	function keypressHandler(event: KeyboardEvent) {
@@ -87,6 +100,10 @@
 			appWindow.close();
 		}
 	}
+
+	// setting.subscribe((s) => {
+	// 	displayElement.style.setProperty('--zoom', s.zoom.toString());
+	// });
 
 	onMount(async () => {
 		unlistenKeypress = await listen('keypress', (event: { payload: { key: string } }) => {
@@ -109,8 +126,9 @@
 </script>
 
 <div
+	bind:this={displayElement}
 	data-tauri-drag-region
-	class="container p-2 flex justify-center border rounded-lg border-gray-300/10 right-0 backdrop-blur-md h-full"
+	class="container p-2 flex justify-center border rounded-lg border-gray-300/10 right-0 backdrop-blur-md h-full zoom"
 >
 	<div class="-z-10 flex space-x-1 min-h-8 min-w-16 text-right rtl-overflow">
 		<span></span>
@@ -121,7 +139,7 @@
 	</div>
 </div>
 
-<style>
+<style scoped>
 	:global(html) {
 		background-color: transparent !important;
 	}
@@ -131,5 +149,10 @@
 
 	.rtl-overflow {
 		direction: rtl;
+	}
+
+	.zoom {
+		/* zoom: setting.zoom; */
+		zoom: var(--zoom, 1);
 	}
 </style>

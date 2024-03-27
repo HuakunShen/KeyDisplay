@@ -21,6 +21,7 @@ tauri = { version = "1.6.1", features = ["macos-private-api", "window-all"] }
 # rdev = "0.5.3"
 rdev = { git = "https://github.com/fufesou/rdev" }
 tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
+window-vibrancy = "0.4.3"
 
 
 [features]
