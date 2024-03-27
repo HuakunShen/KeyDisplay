@@ -8,22 +8,24 @@
 	function keyTranslator(key: string) {
 		switch (key) {
 			case 'Escape':
-				return '⎋';
+				return 'ESC';
 			case 'Enter':
 				return '↵';
+			case 'Delete':
+				return 'DEL';
 			case 'Backspace':
 				return '⌫';
 			case 'MetaLeft':
 				return '⌘';
 			case 'MetaRight':
 				return '⌘';
-			case 'ArrowUp':
+			case 'UpArrow':
 				return '↑';
-			case 'ArrowDown':
+			case 'DownArrow':
 				return '↓';
-			case 'ArrowLeft':
+			case 'LeftArrow':
 				return '←';
-			case 'ArrowRight':
+			case 'RightArrow':
 				return '→';
 			case 'ShiftLeft':
 				return '⇧';
@@ -31,6 +33,30 @@
 				return '=';
 			case 'Minus':
 				return '-';
+			case 'Space':
+				return '␣';
+			case 'Tab':
+				return '⇥';
+			case 'CapsLock':
+				return '⇪';
+			case 'Comma':
+				return ',';
+			case 'Dot':
+				return '.';
+			case 'Slash':
+				return '/';
+			case 'SemiColon':
+				return ';';
+			case 'Quote':
+				"'";
+			case 'LeftBracket':
+				return '[';
+			case 'RightBracket':
+				return ']';
+			case 'BackSlash':
+				return '\\';
+			case 'BackQuote':
+				return '`';
 			case 'ShiftRight':
 				return '⇧';
 			case 'ControlLeft':
@@ -38,9 +64,9 @@
 			case 'ControlRight':
 				return 'Ctrl';
 			case 'Alt':
-				return 'Alt';
+				return '⎇';
 			case 'AltGr':
-				return 'Alt';
+				return '⎇';
 			default:
 				// if key starts with Key, remove the prefix
 				if (key.startsWith('Key')) {
@@ -64,10 +90,11 @@
 
 	onMount(async () => {
 		unlistenKeypress = await listen('keypress', (event: { payload: { key: string } }) => {
-			keys.push(event.payload.key);
-			keys = keys;
+			// keys.push(event.payload.key);
+			keys = [event.payload.key, ...keys];
 			setTimeout(() => {
-				keys.shift();
+				// keys.shift();
+				keys.pop();
 				keys = keys;
 			}, 2000);
 		});
@@ -81,10 +108,15 @@
 	});
 </script>
 
-<div data-tauri-drag-region class="container p-2 flex justify-center">
-	<div class="-z-10 flex space-x-1">
+<div
+	data-tauri-drag-region
+	class="container p-2 flex justify-center border rounded-lg border-gray-300/10 right-0 backdrop-blur-md h-full"
+>
+	<div class="-z-10 flex space-x-1 min-h-8 min-w-16 text-right rtl-overflow">
+		<span></span>
+		<!--  -->
 		{#each keys as key}
-			<kbd id="" class="kbd">{keyTranslator(key)}</kbd>
+			<kbd class="kbd">{keyTranslator(key)}</kbd>
 		{/each}
 	</div>
 </div>
@@ -95,5 +127,9 @@
 	}
 	:global(body) {
 		background-color: transparent !important;
+	}
+
+	.rtl-overflow {
+		direction: rtl;
 	}
 </style>

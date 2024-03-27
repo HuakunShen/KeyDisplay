@@ -1,22 +1,30 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { WebviewWindow, appWindow, currentMonitor } from '@tauri-apps/api/window';
+	import { setting } from '$lib/store';
 
-	onMount(() => {
-		// new WebviewWindow('display', {
-		// 	url: 'http://localhost:5173/display'
-		// });
-	});
+	// let setting2;
+	// setting.subscribe((value) => {
+	// 	setting2 = value;
+	// });
 </script>
 
 <button
 	on:click={async () => {
-		// const curMon = await currentMonitor();
+		let y = 100;
+		const curMon = await currentMonitor();
+		if (curMon) {
+			const size = curMon.size;
+			y = size.height - 100;
+		}
+
 		// const height = curMon?.hei;
 		new WebviewWindow('display', {
 			url: 'display',
 			transparent: true,
-			height: 200,
+			y: 500,
+			x: 500,
+			height: 300,
 			width: 500,
 			decorations: false,
 			alwaysOnTop: true

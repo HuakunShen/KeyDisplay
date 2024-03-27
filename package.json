@@ -42,6 +42,8 @@
   },
   "type": "module",
   "dependencies": {
-    "@tauri-apps/api": "^1.5.3"
+    "@tauri-apps/api": "^1.5.3",
+    "tauri-plugin-store-api": "https://github.com/tauri-apps/tauri-plugin-store#v1",
+    "zod": "^3.22.4"
   }
 }

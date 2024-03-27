@@ -1,6 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use rdev::{listen, Event, EventType, Key};
+use rdev::{listen, EventType};
 use tauri::Manager;
 
 #[derive(Clone, serde::Serialize)]
@@ -10,6 +10,7 @@ struct Payload {
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::default().build())
         .setup(|app| {
             // let window = app.get_window("main").unwrap();
             // window.set_title("Tauri App");
