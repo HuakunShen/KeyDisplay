@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use rdev::{listen, EventType};
 use tauri::{Manager, Runtime};
-use window_vibrancy::{apply_blur, apply_vibrancy, NSVisualEffectMaterial};
+// use window_vibrancy::{apply_blur, apply_vibrancy, NSVisualEffectMaterial};
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
