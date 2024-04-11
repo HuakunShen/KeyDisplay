@@ -3,6 +3,8 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { emit, listen, type UnlistenFn } from '@tauri-apps/api/event';
 	import { setting } from '$lib/store';
+	import { type Setting } from '$lib/types';
+	import { get } from 'svelte/store';
 
 	let keys: string[] = [];
 	let displayElement: HTMLElement;
@@ -85,27 +87,38 @@
 	}
 
 	onMount(() => {
-		setting.subscribe((s) => {
-			console.log("setting update");
-			
-			// set data-theme attribute of html element to s.theme
-			document.documentElement.setAttribute('data-theme', s.theme);
-		});
+		setTimeout(() => {
+			displayElement.style.setProperty('--zoom', get(setting).zoom.toString());
+			console.log(get(setting).zoom);
+			// appWindow.scale
+		}, 500);
 	});
 
 	let unlistenKeypress: UnlistenFn;
+	let settingUnlisten: UnlistenFn;
 
 	function keypressHandler(event: KeyboardEvent) {
 		if (event.key === 'Escape') {
 			appWindow.close();
 		}
 	}
+	setting.subscribe((s) => {
+		console.log('setting update');
 
+		// set data-theme attribute of html element to s.theme
+		document.documentElement.setAttribute('data-theme', s.theme);
+	});
 	// setting.subscribe((s) => {
 	// 	displayElement.style.setProperty('--zoom', s.zoom.toString());
 	// });
 
 	onMount(async () => {
+		settingUnlisten = await listen('setting-update', (event: { payload: Setting }) => {
+			if (event.payload) {
+				document.documentElement.setAttribute('data-theme', event.payload.theme);
+				displayElement.style.setProperty('--zoom', event.payload.zoom.toString());
+			}
+		});
 		unlistenKeypress = await listen('keypress', (event: { payload: { key: string } }) => {
 			// keys.push(event.payload.key);
 			keys = [event.payload.key, ...keys];
@@ -128,7 +141,7 @@
 <div
 	bind:this={displayElement}
 	data-tauri-drag-region
-	class="container p-2 flex justify-center border rounded-lg border-gray-300/10 right-0 backdrop-blur-md h-full zoom"
+	class="container p-2 flex justify-center border rounded-lg border-gray-300/10 backdrop-blur-md h-full zoom overflow-hidden"
 >
 	<div class="-z-10 flex space-x-1 min-h-8 min-w-16 text-right rtl-overflow">
 		<span></span>
@@ -140,11 +153,9 @@
 </div>
 
 <style scoped>
-	:global(html) {
-		background-color: transparent !important;
-	}
-	:global(body) {
-		background-color: transparent !important;
+	:global(html, body) {
+		/* background-color: transparent !important; */
+		height: 100vh;
 	}
 
 	.rtl-overflow {

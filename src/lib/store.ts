@@ -35,6 +35,7 @@ async function loadSettings() {
 
 loadSettings()
 	.then((s) => {
+		// console.log('loaded setting', s);
 		setting.set(s);
 	})
 	.catch((err) => {
@@ -42,6 +43,8 @@ loadSettings()
 	});
 
 setting.subscribe((val) => {
+	// console.log('set setting', val);
+	
 	store.set('setting', val);
 });
 // console.log(loadedSetting);

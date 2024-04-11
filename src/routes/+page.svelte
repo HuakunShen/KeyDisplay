@@ -4,11 +4,26 @@
 	import { setting } from '$lib/store';
 	import { themes, ThemeUnion } from '$lib/types';
 	import { invoke } from '@tauri-apps/api';
+	import { emit, listen, type UnlistenFn } from '@tauri-apps/api/event';
+	import { get } from 'svelte/store';
+
+	let appStatus = false;
+
 	onMount(() => {
 		setting.subscribe((s) => {
+			console.log(s);
+
 			// set data-theme attribute of html element to s.theme
 			document.documentElement.setAttribute('data-theme', s.theme);
 		});
+		setInterval(() => {
+			const win = WebviewWindow.getByLabel('display');
+			if (win) {
+				appStatus = true;
+			} else {
+				appStatus = false;
+			}
+		}, 2000);
 	});
 
 	function themeUpdate(e: Event) {
@@ -17,6 +32,7 @@
 			s.theme = ThemeUnion.parse(target.value);
 			return s;
 		});
+		emit('setting-update', get(setting));
 	}
 
 	function zoomUpdate(e: Event) {
@@ -28,13 +44,13 @@
 			s.zoom = newZoom;
 			return s;
 		});
+		emit('setting-update', get(setting));
 	}
-</script>
 
-<div data-tauri-drag-region class="h-8 w-full"></div>
-<div class="p-2">
-	<button
-		on:click={async () => {
+	async function appToggle(e: Event) {
+		const target = e.target as HTMLInputElement;
+		const checked = target.checked;
+		if (checked) {
 			let y = 100;
 			const curMon = await currentMonitor();
 			if (curMon) {
@@ -45,22 +61,36 @@
 			new WebviewWindow('display', {
 				url: 'display',
 				transparent: true,
-				y: 500,
-				x: 500,
-				height: 60,
+				center: true,
+				// y: 500,
+				// x: 500,
+				height: 55 * get(setting).zoom,
 				width: 500,
 				decorations: false,
 				alwaysOnTop: true
 			});
-			setTimeout(() => {
-				invoke('blur_display_background', { windowLabel: 'display' });
-			}, 500);
-		}}
-		class="inline-block cursor-pointer rounded-md bg-gray-800 px-4 py-3 text-center text-sm font-semibold uppercase text-white transition duration-200 ease-in-out hover:bg-gray-900"
-	>
-		Start
-	</button>
+		} else {
+			const window = WebviewWindow.getByLabel('display');
+			if (window) {
+				window.close();
+			}
+		}
+	}
+</script>
 
+<div data-tauri-drag-region class="h-8 w-full"></div>
+<div class="p-2 px-5 flex flex-col space-y-3">
+	<div class="form-control w-52">
+		<label class="cursor-pointer label">
+			<span class="label-text text-xl font-bold">App Status</span>
+			<input
+				type="checkbox"
+				class="toggle toggle-success"
+				on:change={appToggle}
+				bind:checked={appStatus}
+			/>
+		</label>
+	</div>
 	<div class="flex flex-col space-y-3">
 		<h2 class="text-xl font-bold">Color Theme</h2>
 		<select class="select w-full max-w-xs" on:change={themeUpdate} bind:value={$setting.theme}>
